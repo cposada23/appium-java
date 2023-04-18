@@ -57,4 +57,21 @@ public class appiumExample extends BaseTest{
         driver.findElement(AppiumBy.accessibilityId("Views")).click();
         scrollToEnd();
     }
+
+
+    @Test
+    public void swipeDemoTest() throws MalformedURLException {
+        driver.findElement(AppiumBy.accessibilityId("Views")).click();
+        driver.findElement(AppiumBy.accessibilityId("Gallery")).click();
+        driver.findElement(AppiumBy.accessibilityId("1. Photos")).click();
+        Assert.assertEquals(driver.findElement(AppiumBy.xpath("(//android.widget.ImageView)[1]")).getAttribute("focusable"), "true");
+
+        // Swipe
+        WebElement elementToSwipe = driver.findElement(AppiumBy.xpath("(//android.widget.ImageView)[1]"));
+
+        swipe(elementToSwipe, SwipeDirections.LEFT);
+
+        Assert.assertEquals(driver.findElement(AppiumBy.xpath("(//android.widget.ImageView)[1]")).getAttribute("focusable"), "false");
+
+    }
 }

@@ -691,3 +691,30 @@ For example, you can make a utility function to scroll to the end of the screen 
 		    );  
         } while (canScrollMore);  
     }
+
+#### Swipe Functionality
+
+We use the `mobile: swipeGesture` script
+
+    @Test
+    public void swipeDemoTest() throws MalformedURLException {
+        driver.findElement(AppiumBy.accessibilityId("Views")).click();
+        driver.findElement(AppiumBy.accessibilityId("Gallery")).click();
+        driver.findElement(AppiumBy.accessibilityId("1. Photos")).click();
+        Assert.assertEquals(driver.findElement(AppiumBy.xpath("(//android.widget.ImageView)[1]")).getAttribute("focusable"), "true");
+
+        // Swipe
+        WebElement elementToSwipe = driver.findElement(AppiumBy.xpath("(//android.widget.ImageView)[1]"));
+        ((JavascriptExecutor) driver).executeScript(
+	       "mobile: swipeGesture",
+            ImmutableMap.of(
+                "elementId", ((RemoteWebElement) elementToSwipe).getId(),
+                "direction", "left",
+                "percent", 0.75
+            )
+        );
+
+
+        Assert.assertEquals(driver.findElement(AppiumBy.xpath("(//android.widget.ImageView)[1]")).getAttribute("focusable"), "false");
+
+    }

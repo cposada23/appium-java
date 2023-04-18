@@ -7,6 +7,17 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebElement;
 
 public class Utils {
+
+    public enum SwipeDirections {
+        LEFT("left"), RIGHT("right");
+        SwipeDirections(String v) {
+            value = v;
+        }
+        private String value;
+        public String getValue() {
+            return value;
+        }
+    }
     public AndroidDriver driver;
     public void longPress(WebElement element, int duration) {
         ((JavascriptExecutor)driver).executeScript(
@@ -29,6 +40,18 @@ public class Utils {
                     "percent", 3.0
             ));
         } while (canScrollMore);
+
+    }
+
+    public void swipe(WebElement element, SwipeDirections direction) {
+        ((JavascriptExecutor) driver).executeScript(
+                "mobile: swipeGesture",
+                ImmutableMap.of(
+                        "elementId", ((RemoteWebElement) element).getId(),
+                        "direction", direction.getValue(),
+                        "percent", 0.75
+                )
+        );
 
     }
 }
