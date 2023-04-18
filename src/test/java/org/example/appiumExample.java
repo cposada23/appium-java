@@ -9,14 +9,15 @@ import java.net.URL;
 
 public class appiumExample {
 
-    String deviceName = "";
+    String deviceName = "Nexus 6P API 31";
+    String appPath = "/Users/camilo.posadaa/Documents/personal/framworks/java/Appium-java/src/test/java/org/resources/ApiDemos-debug.apk";
 
     @Test
     public void exampleTest() throws MalformedURLException {
         UiAutomator2Options capabilities = new UiAutomator2Options();
         capabilities.setDeviceName(deviceName);
-
-        URL appiumSeverURL = new URL("http:127.0.0.1:4723");
+        capabilities.setApp(appPath);
+        URL appiumSeverURL = new URL("http://127.0.0.1:4723");
         AndroidDriver driver = new AndroidDriver(appiumSeverURL, capabilities);
     }
 }
