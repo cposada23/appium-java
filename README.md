@@ -177,8 +177,8 @@ My `pom.xml` looks like this at this point:
 	     </dependencies>
      </project> 
 
-## TestNG Hooks
-
+## TestNG
+### Hooks
 > Read more about them here: https://www.browserstack.com/guide/testng-annotations-in-selenium
 
 -   **@BeforeMethod**: This will be executed before every @test annotated method.
@@ -191,6 +191,85 @@ My `pom.xml` looks like this at this point:
 -   **@AfterSuite:**  A method with this annotation will run once after the execution of all tests in the suite is complete.
 -   **@BeforeGroups**: This method will run before the first test run of that specific group.
 -   **@AfterGroups**: This method will run after all test methods of that group complete their execution.
+
+### Assertions
+TestNG Comes with the `Assert` and `SoftAssert` classes to do multiple assertions:
+
+-   assertEquals
+-   assertNotEquals
+-   assertTrue
+-   assertFalse
+-   assertNull
+-   assertNotNull
+
+### Hard Assertions
+Hard assertions means that the assertion fails as soon as the condition is not met. For this types of assertions you use the class `Assert` like this `Assert.assertEquals(alertText, "WiFi settings");`
+
+### Soft Assertions
+This type of assertions "saves" when some assertion fails but it does not fail the test immediately. Whit this type of assertion you can validate multiple conditions and the test will not fail until you call the assertAll method, this method will add all the failures that it found to the TestNG Report.
+
+To use this type of assertions you need to instantiate an object for the SoftAssert class `SoftAssert softAssert = new  SoftAssert();` and then use it for the assertions:
+
+
+    softAssert.assertNull("assertion");
+    softAssert.assertEquals(text, expectedText);
+
+At the end of the test you have to call assertAll for the errors to be reported like this:
+
+    softAssert.assertAll();
+
+
+
+## Appium (Content that applies both for Android and iOS)
+
+### Waits
+#### Implicit wait
+
+Implicit Wait directs the  driver to wait for a certain measure of time before throwing an exception. Once this time is set, the driver will wait for the element before the exception occurs.
+
+Once the command is in place, Implicit Wait stays in place for the entire duration for which the browser is open. It’s default setting is 0, and the specific wait time needs to be set by the following protocol.
+
+    driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+
+#### Explicit Waits
+Explicit wait tells the driver to wait until a certain condition occurs before throwing an exception. The types of explicit waits are the followings:
+
+-   alertIsPresent()
+-   elementSelectionStateToBe()
+-   elementToBeClickable()
+-   elementToBeSelected()
+-   frameToBeAvaliableAndSwitchToIt()
+-   invisibilityOfTheElementLocated()
+-   invisibilityOfElementWithText()
+-   presenceOfAllElementsLocatedBy()
+-   presenceOfElementLocated()
+-   textToBePresentInElement()
+-   textToBePresentInElementLocated()
+-   textToBePresentInElementValue()
+-   titleIs()
+-   titleContains()
+-   visibilityOf()
+-   visibilityOfAllElements()
+-   visibilityOfAllElementsLocatedBy()
+-   visibilityOfElementLocated()
+
+### Finding Elements
+To find an element in java, you use the `AppiumBy` class instead of the `By` class that you use for selenium ex: `driver.findElement(AppiumBy.accessibilityId("Preference"));`
+
+Some Examples:
+- **XPath:** `driver.findElement(AppiumBy.xpath("//android.widget.TextView[@content-desc='3. Preference dependencies']"))  
+  .click();`
+- **Accessibility ID:**  `driver.findElement(AppiumBy.accessibilityId("Preference"));`
+- **id:** `driver.findElement(AppiumBy.id("android:id/checkbox")).click();`
+- **Class Name :** `driver.findElements(AppiumBy.className("android.widget.Button"))`
+
+### Common Actions
+- **Find Element** `driver.findElement(<replace with the proper BY locator>)`
+- **Find Elements** `driver.findElements(<replace with the proper BY locator>)`
+- **Click** `driver.findElement(<replace with the proper BY locator>).click()`
+- **Type in textBox** `driver.findElement(<replace with proper BY Locator>).sendKeys(<Replace with what you want to type>)`
+- **Get Text of an element :** `driver.findElement(<replace with the proper BY locator>).getText()`
+- **Get element is displayed  :** `driver.findElement(<replace with the proper BY locator>).isDisplayed()`
 
 ## Android
 
@@ -352,19 +431,6 @@ We have some code that can be shared between the different test cases that we ar
 
 ***BaseTest class***
 
-    package org.example;  
-      
-    import io.appium.java_client.android.AndroidDriver;  
-    import io.appium.java_client.android.options.UiAutomator2Options;  
-    import io.appium.java_client.service.local.AppiumDriverLocalService;  
-    import io.appium.java_client.service.local.AppiumServiceBuilder;  
-    import org.testng.annotations.AfterClass;  
-    import org.testng.annotations.BeforeClass;  
-      
-    import java.io.File;  
-    import java.net.MalformedURLException;  
-    import java.net.URL;  
-      
     public class BaseTest {  
          private String deviceName = "Nexus 6P API 31";  
 	     private String appPath = "/Users/camilo.posadaa/Documents/personal/framworks/java/Appium-java/src/test/java/org/resources/ApiDemos-debug.apk";  
@@ -424,8 +490,204 @@ You can fin elements by different types of attributes
 - index
 - Class
 - Text
-- UiAutomator
+- UiAutomator: see https://github.com/appium/appium-uiautomator2-driver/blob/master/docs/uiautomator-uiselector.md
 
-To find an element in java, you use the `AppiumBy` class instead of the `By` class that you use for selenium ex: `driver.findElement(AppiumBy.accessibilityId("Preference"));`
+> Remember: You can get the values of this selectors using the Appium Inspector, selecting the element that you want to interact with, and copy the selector that you want. ( **Always try to go with Accessibility ID**
 
 
+### Example test case using the ApiDemos-debug.apk
+
+1. Go to preference
+2. Click on the 3 option: Preference Dependencies
+3. Select the WifiCheck box
+4. Click Wifi Settings
+5. Type something  in the textbox
+
+> Solution
+
+
+    @Test  
+    public void exampleTest() throws MalformedURLException {  
+	      WebElement preferenceElement = driver.findElement(AppiumBy.accessibilityId("Preference"));  
+	      preferenceElement.click();  
+	      driver.findElement(AppiumBy.xpath("//android.widget.TextView[@content-desc='3. Preference dependencies']"))  
+                .click();  
+	      driver.findElement(AppiumBy.id("android:id/checkbox")).click();  
+	      driver.findElement(AppiumBy.xpath("(//android.widget.RelativeLayout)[2]")).click();  
+	      // Assert  
+	      String alertText = driver.findElement(AppiumBy.id("android:id/alertTitle")).getText();  
+	      Assert.assertEquals(alertText, "WiFi settings");  
+	      driver.findElement(AppiumBy.id("android:id/edit")).sendKeys("Test");  
+	      driver.findElements(AppiumBy.className("android.widget.Button")).get(1).click();  
+    }
+
+
+### Mobile Gestures (Android)
+
+> see: https://github.com/appium/appium-uiautomator2-driver/blob/master/docs/android-mobile-gestures.md
+
+If you know Selenium, all that you saw before this point should look familiar (clicking on element, send keys .... etc ). But there are some gestures that are exclusive to mobile automation. Here are some of them:
+- Drag And drop
+- Long press
+- Mobile Scrolling
+- Pinch
+- swapping
+
+You make use of these gestures using the JavascriptExecutor class
+#### Long press
+For this you'll need the element id where you are going to press and the duration
+
+    @Test  
+    public void longPressExample() throws MalformedURLException {  
+	    driver.findElement(AppiumBy.accessibilityId("Views")).click();  
+	    driver.findElement(AppiumBy.xpath("//android.widget.TextView[@text='Expandable Lists']")).click();  
+	    driver.findElement(AppiumBy.accessibilityId("1. Custom Adapter")).click();  
+	      
+	    WebElement element = driver.findElement(AppiumBy.xpath("//android.widget.TextView[@text='People Names']"));  
+	      
+	    ((JavascriptExecutor)driver).executeScript(  
+		    "mobile: longClickGesture",  
+		    ImmutableMap.of(  
+		      "elementId", ((RemoteWebElement) element).getId(),  
+		      "duration", 2000  
+		    )  
+	    );  
+    }
+
+1. You find the element to long Press
+2. call driver.executeScript
+    - The script that we are executing is `longClickGesture`
+3. Then you have to pass a map (key value pairs ) containing the element id and the duration
+    - To get the element id, first you need to cast the WebElement to RemoteWebElement and then you can get the id `getId()`
+4. Don't forget to cast the WebDriver to JavascriptExecutor
+
+## Time to refactor (Utility class for common methods)
+Since we already have the long press functionality coded, why don't we make a reusable method so we can avoid code duplication if we wan to use long press in another test file?
+
+- Create a Utils class, and move the driver declaration there only the part that says `public AndroidDriver driver;` and create a new method `longPress` that receives as parameters the WebElement and the duration.
+- In the BaseTest class extend the Utils Class
+
+### My code now looks like this:
+
+#### Utils `src/test/java/org/example/Utils.java`
+
+    public class Utils {  
+	    public AndroidDriver driver;  
+		public void longPress(WebElement element, int duration) {  
+		    ((JavascriptExecutor)driver).executeScript(  
+			    "mobile: longClickGesture",  
+			    ImmutableMap.of(  
+				    "elementId", ((RemoteWebElement) element).getId(),  
+				    "duration", duration  
+			    )  
+		    );  
+	    }  
+    }
+
+#### BaseTest `org/example/BaseTest.java`
+
+    public class BaseTest extends Utils {  
+             private String deviceName = "Nexus 6P API 31";  
+    	     private String appPath = "/Users/camilo.posadaa/Documents/personal/framworks/java/Appium-java/src/test/java/org/resources/ApiDemos-debug.apk";  
+    	     private String nodeModulesAppiumPath = "/Users/camilo.posadaa/.nvm/versions/node/v18.13.0/lib/node_modules/appium/build/lib/main.js";  
+    	     private String appiumIPAddress = "127.0.0.1";  
+    	     int appiumPort = 4723;  
+    	     public AndroidDriver driver;  
+    	     public AppiumDriverLocalService service;  
+    	     @BeforeClass  
+    	     public void configureAppium () throws MalformedURLException {  
+    		            // Start Appium Server programmatically  
+    		     service = new AppiumServiceBuilder()  
+    		                    .withAppiumJS(new File(nodeModulesAppiumPath))  
+    		                    .withIPAddress(appiumIPAddress)  
+    		                    .usingPort(appiumPort)  
+    		                    .build();  
+    		      
+		     service.start();  
+		     // Set the capabilities  
+		     UiAutomator2Options capabilities = new UiAutomator2Options();  
+		     capabilities.setDeviceName(deviceName);  
+		     capabilities.setApp(appPath);  
+		     URL appiumSeverURL = new URL("http://".concat(appiumIPAddress.concat(":").concat(String.valueOf(appiumPort))));  
+		     // Start the driver  
+		     driver = new AndroidDriver(appiumSeverURL, capabilities);  
+		      
+	     }  
+	     
+	     @AfterClass  
+	     public void tearDown () {  
+		     // Clean  
+		     driver.quit();  
+		     service.close();  
+	     }  
+	      
+    }
+
+#### Tests File `org/example/appiumExample.java`
+
+    public class appiumExample extends BaseTest{  
+	    @Test  
+	    public void exampleTest() throws MalformedURLException {  
+		    WebElement preferenceElement = driver.findElement(AppiumBy.accessibilityId("Preference"));  
+			preferenceElement.click();  
+		    driver.findElement(AppiumBy.xpath("//android.widget.TextView[@content-desc='3. Preference dependencies']")).click();  
+		    driver.findElement(AppiumBy.id("android:id/checkbox")).click();  
+		    driver.findElement(AppiumBy.xpath("(//android.widget.RelativeLayout)[2]")).click();  
+		      
+		    // Assert  
+		    String alertText = driver.findElement(AppiumBy.id("android:id/alertTitle")).getText();  
+		    Assert.assertEquals(alertText, "WiFi settings");  
+			driver.findElement(AppiumBy.id("android:id/edit")).sendKeys("Test");  
+			driver.findElements(AppiumBy.className("android.widget.Button")).get(1).click();  
+	    }  
+	      
+	    @Test  
+	    public void longPressExample() throws MalformedURLException {  
+		    driver.findElement(AppiumBy.accessibilityId("Views")).click();  
+		    driver.findElement(AppiumBy.xpath("//android.widget.TextView[@text='Expandable Lists']")).click();  
+		    driver.findElement(AppiumBy.accessibilityId("1. Custom Adapter")).click();  
+		      
+		    WebElement element = driver.findElement(AppiumBy.xpath("//android.widget.TextView[@text='People Names']"));  
+		    longPress(element, 2000);  
+		    // Assert that the menu appears  
+		    Assert.assertTrue(driver.findElement(AppiumBy.id("android:id/title")).isDisplayed());  
+		    String menuText = driver.findElement(AppiumBy.id("android:id/title")).getText();  
+		    Assert.assertEquals(menuText, "Sample menu");  
+	    }  
+    }
+
+## Continue with gestures
+
+#### Scrolling
+For this is a good idea to use the UIAutomator and use the google engine script that they provide:
+> See: https://developer.android.com/reference/androidx/test/uiautomator/UiScrollable
+
+    driver.findElement(AppiumBy.androidUIAutomator(  
+	    "new UiScrollable(new UiSelector().scrollable(true)).scrollTextIntoView(\"WebView\")")  
+    );
+
+Or use the example scroll provided here: https://github.com/appium/appium-uiautomator2-driver/blob/master/docs/android-mobile-gestures.md
+
+    // Java
+    boolean canScrollMore = (Boolean) ((JavascriptExecutor) driver).executeScript("mobile: flingGesture", ImmutableMap.of(
+        "elementId", ((RemoteWebElement) element).getId(),
+        "direction", "down",
+        "speed", 500
+    ));
+
+For example, you can make a utility function to scroll to the end of the screen like this:
+
+    public void scrollToEnd() {  
+          
+        boolean canScrollMore;  
+	    do {  
+            canScrollMore = (Boolean) ((JavascriptExecutor) driver).executeScript(
+	           "mobile: scrollGesture", 
+	            ImmutableMap.of(  
+                  "left", 100, "top", 100, "width", 200, "height", 200,  
+			      "direction", "down",  
+			      "percent", 3.0  
+		        )
+		    );  
+        } while (canScrollMore);  
+    }
