@@ -121,30 +121,30 @@ For this course, I'm following with IntelliJ IDEA ( Community Edition ) but you 
 > Get the Java Client for Appium here: https://mvnrepository.com/artifact/io.appium/java-client select the latest version
 
 Copy the maven dependency, something like this:
-
-    <!-- https://mvnrepository.com/artifact/io.appium/java-client -->
-    <dependency>
-        <groupId>io.appium</groupId>
-        <artifactId>java-client</artifactId>
-        <version>8.3.0</version>
-    </dependency>
-
+```xml
+<!-- https://mvnrepository.com/artifact/io.appium/java-client -->
+<dependency>
+    <groupId>io.appium</groupId>
+    <artifactId>java-client</artifactId>
+    <version>8.3.0</version>
+</dependency>
+```
 Paste it in the dependencies section of your `pom.xml` file
 
 > You'll need a testing framework in order to execute the tests, a framework like jUnit or TestNG. In this case I'm using TestNG, so copy the TestNG Dependency (https://mvnrepository.com/artifact/org.testng/testng)  and paste it in the `pom.xml` file. Note: Replace the jUnit one if you have it there.
 
 > Note: If you're using Java version 8, do not use the latest TestNG version, you'll have compatibility issues. For this java version use ***6.x version***.
-
-    <!-- https://mvnrepository.com/artifact/org.testng/testng -->
-    <dependency>
-        <groupId>org.testng</groupId>
-        <artifactId>testng</artifactId>
-        <version>7.7.1</version>
-        <scope>test</scope>
-    </dependency>
-
+```xml
+<!-- https://mvnrepository.com/artifact/org.testng/testng -->
+<dependency>
+	<groupId>org.testng</groupId>
+	<artifactId>testng</artifactId>
+	<version>7.7.1</version>
+	<scope>test</scope>
+</dependency>
+```
 My `pom.xml` looks like this at this point:
-
+```xml
     <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
       xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">  
      <modelVersion>4.0.0</modelVersion>  
@@ -176,7 +176,7 @@ My `pom.xml` looks like this at this point:
 		     </dependency>  
 	     </dependencies>
      </project> 
-
+```
 ## TestNG
 ### Hooks
 > Read more about them here: https://www.browserstack.com/guide/testng-annotations-in-selenium
@@ -228,9 +228,9 @@ At the end of the test you have to call assertAll for the errors to be reported 
 Implicit Wait directs the  driver to wait for a certain measure of time before throwing an exception. Once this time is set, the driver will wait for the element before the exception occurs.
 
 Once the command is in place, Implicit Wait stays in place for the entire duration for which the browser is open. It’s default setting is 0, and the specific wait time needs to be set by the following protocol.
-
-    driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-
+```java
+driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+```
 #### Explicit Waits
 Explicit wait tells the driver to wait until a certain condition occurs before throwing an exception. The types of explicit waits are the followings:
 
@@ -307,45 +307,47 @@ To create an android driver to be able to communicate and send commands to the a
 public void exampleTest()`. In the resources folder, paste the example apps, you'll find them in the `resources` package of this repository `https://github.com/cposada23/appium-java.git`.
 
 > Don't forget to setup and start the emulator, and have the Appium server running: `appium -p 4723 --allow-cors`
-
-    @Test  
-    public void exampleTest() throws MalformedURLException {  
-	      UiAutomator2Options capabilities = new UiAutomator2Options();  
-	      capabilities.setDeviceName(deviceName);  
-	      capabilities.setApp(appPath);  
-	      URL appiumSeverURL = new URL("http:127.0.0.1:4723");  
-	      AndroidDriver driver = new AndroidDriver(appiumSeverURL, capabilities);  
-    }
-
+```java
+@Test  
+public void exampleTest() throws MalformedURLException {  
+	UiAutomator2Options capabilities = new UiAutomator2Options();  
+	capabilities.setDeviceName(deviceName);  
+	capabilities.setApp(appPath);  
+	URL appiumSeverURL = new URL("http:127.0.0.1:4723");  
+	AndroidDriver driver = new AndroidDriver(appiumSeverURL, capabilities);  
+}
+```
 Now run the test as TestNG Test ( In IntelliJ you should see the green play button or in other IDE right click -> Run As -> TestNG Test. The emulator should open the app...
 
 ### Start and Stop Appium Server programmatically
 For this Appium has provided the Class AppiumServiceBuilder. You'll need to provide the path to the Appium Installation. Since we installed Appium using npm, the path will be where your npm global packages are installed. In mac you can see where are the node modules using this command in a terminal `npm list -g`, Copy this path and concat the following to it: `/node_modules/appium/build/lib/main.js` in my case the full path looks something like this: `/Users/camilo.posadaa/.nvm/versions/node/v18.13.0/lib/node_modules/appium/build/lib/main.js`.  This path depends on many factors ( If you are using nvm or not, and the operating system so depending on that you'll need to investigate where the global node modules are stored  for you)
+```java
+@Test  
+public void exampleTest() throws MalformedURLException {  
+	// Start Appium Server programmatically  
+	AppiumDriverLocalService service = new AppiumServiceBuilder()  
+		.withAppiumJS(new File(nodeModulesAppiumPath))  
+		.withIPAddress(appiumIPAddress)  
+		.usingPort(appiumPort)  
+		.build();  
 
-    @Test  
-    public void exampleTest() throws MalformedURLException {  
-        // Start Appium Server programmatically  
-	      AppiumDriverLocalService service = new AppiumServiceBuilder()  
-	                .withAppiumJS(new File(nodeModulesAppiumPath))  
-	                .withIPAddress(appiumIPAddress)  
-	                .usingPort(appiumPort)  
-	                .build();  
-	      
-	      service.start();  
-	      // Set the capabilities  
-	      UiAutomator2Options capabilities = new UiAutomator2Options();  
-	      capabilities.setDeviceName(deviceName);  
-	      capabilities.setApp(appPath);  
-	      URL appiumSeverURL = new URL("http://".concat(appiumIPAddress.concat(":").concat(String.valueOf(appiumPort))));  
-	      // Start the driver  
-	      AndroidDriver driver = new AndroidDriver(appiumSeverURL, capabilities);  
-	      // Clean everything  
-	      driver.quit();  
-	      service.stop();  
-    }
-
+	service.start();  
+	// Set the capabilities  
+	UiAutomator2Options capabilities = new UiAutomator2Options();  
+	capabilities.setDeviceName(deviceName);  
+	capabilities.setApp(appPath);  
+	URL appiumSeverURL = new URL(
+		"http://".concat(appiumIPAddress.concat(":").concat(String.valueOf(appiumPort)))
+	);  
+	// Start the driver  
+	AndroidDriver driver = new AndroidDriver(appiumSeverURL, capabilities);  
+	// Clean everything  
+	driver.quit();  
+	service.stop();  
+}
+```
 > Note: There seems to be a bug with the java-client version 8.3, if you get an error like this: `java.lang.NullPointerException: Cannot invoke "org.openqa.selenium.os.CommandLine.isRunning()" because "this.process" is null` there is a workaround listed here: `https://github.com/appium/java-client/issues/1872` what you need to do is in your pom.xml file exclude the selenium dependencies from the java-client and add selenium to your project, so my pom.xml file now looks like this:
-
+```xml
     <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
       xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">  
 	     <modelVersion>4.0.0</modelVersion>  
@@ -395,7 +397,7 @@ For this Appium has provided the Class AppiumServiceBuilder. You'll need to prov
 		     </dependency>  
 	     </dependencies>
      </project>
-
+```
 
 
 ## Using Appium Inspector
@@ -403,18 +405,18 @@ For this Appium has provided the Class AppiumServiceBuilder. You'll need to prov
 
 > Suggestion: Create a new virtual device for manual testing with a different android version than the one that you use in the automation, that's because WebDriverIO looks for the Android version and sometimes it will use this new emulator instead of the other one
 
-3. In the Appium inspector make sure that in the ***Remote Path*** you have ***/*** and in the port the port that you set up in the previous step for the Appium server In my case: ***4724***
-4. In the Appium Inspector you need to add the capabilities to connect to the emulator:
-
-   {
-   "platformName": "Android",
-   "appium:platformVersion": "< Replace with the android version that you chose when creating the emulator >",
-   "appium:deviceName": "< The device name you chose when creating the emulator >",
-   "appium:automationName": "UiAutomator2",
-   "appium:app": "< Replace with the full path to the APK that you are using >"
-   }
-
-5. Click Start Session. you should see in the Appium inspector the application that is running in the emulator. There you can inspect the elements to get the proper id to interact with them in the automation.
+2. In the Appium inspector make sure that in the ***Remote Path*** you have ***/*** and in the port the port that you set up in the previous step for the Appium server In my case: ***4724***
+3. In the Appium Inspector you need to add the capabilities to connect to the emulator:
+```json
+    {
+	     "platformName": "Android",
+	     "appium:platformVersion": "< Replace with the android version that you chose when creating the emulator >",
+	     "appium:deviceName": "< The device name you chose when creating the emulator >",
+	     "appium:automationName": "UiAutomator2",
+	     "appium:app": "<Replace with the full path to the APK that you are using >"
+    }
+```
+4. Click Start Session. you should see in the Appium inspector the application that is running in the emulator. There you can inspect the elements to get the proper id to interact with them in the automation.
 
 
 ## Time to refactor (Introducing some TestNG Hooks and a BaseTest Class to create the driver there
@@ -430,7 +432,7 @@ We have some code that can be shared between the different test cases that we ar
 #### Example code until this lesson:
 
 ***BaseTest class***
-
+```java
     public class BaseTest {  
          private String deviceName = "Nexus 6P API 31";  
 	     private String appPath = "/Users/camilo.posadaa/Documents/personal/framworks/java/Appium-java/src/test/java/org/resources/ApiDemos-debug.apk";  
@@ -467,18 +469,20 @@ We have some code that can be shared between the different test cases that we ar
 	     }  
 	      
     }
+```
 
 ***Test class***
-
-    public class appiumExample extends BaseTest{  
-	    
-	    @Test  
-	    public void exampleTest() throws MalformedURLException {  
-	        WebElement preferenceElement = driver.findElement(AppiumBy.accessibilityId("Preference"));  
-		    preferenceElement.click();  
-	    }  
-    }
-
+```java
+public class appiumExample extends BaseTest{  
+	@Test  
+	public void exampleTest() throws MalformedURLException {  
+		WebElement preferenceElement = driver.findElement(
+			AppiumBy.accessibilityId("Preference")
+		);  
+		preferenceElement.click();  
+	}  
+}
+```
 ### Finding Elements and interacting with Elements (Android)
 
 You can fin elements by different types of attributes
@@ -505,22 +509,33 @@ You can fin elements by different types of attributes
 
 > Solution
 
-
-    @Test  
-    public void exampleTest() throws MalformedURLException {  
-	      WebElement preferenceElement = driver.findElement(AppiumBy.accessibilityId("Preference"));  
-	      preferenceElement.click();  
-	      driver.findElement(AppiumBy.xpath("//android.widget.TextView[@content-desc='3. Preference dependencies']"))  
-                .click();  
-	      driver.findElement(AppiumBy.id("android:id/checkbox")).click();  
-	      driver.findElement(AppiumBy.xpath("(//android.widget.RelativeLayout)[2]")).click();  
-	      // Assert  
-	      String alertText = driver.findElement(AppiumBy.id("android:id/alertTitle")).getText();  
-	      Assert.assertEquals(alertText, "WiFi settings");  
-	      driver.findElement(AppiumBy.id("android:id/edit")).sendKeys("Test");  
-	      driver.findElements(AppiumBy.className("android.widget.Button")).get(1).click();  
-    }
-
+```java
+@Test  
+public void exampleTest() throws MalformedURLException {  
+	WebElement preferenceElement = driver.findElement(
+		AppiumBy.accessibilityId("Preference")
+	);  
+	preferenceElement.click();  
+	driver.findElement(
+		AppiumBy.xpath(
+			"//android.widget.TextView[@content-desc='3. Preference dependencies']"
+		)
+	).click();  
+	driver.findElement(AppiumBy.id("android:id/checkbox")).click();  
+	driver.findElement(AppiumBy.xpath(
+		"(//android.widget.RelativeLayout)[2]")
+	).click();  
+	// Assert  
+	String alertText = driver.findElement(
+		AppiumBy.id("android:id/alertTitle")
+	).getText();  
+	Assert.assertEquals(alertText, "WiFi settings");  
+	driver.findElement(AppiumBy.id("android:id/edit")).sendKeys("Test");  
+	driver.findElements(
+		AppiumBy.className("android.widget.Button")
+	).get(1).click();  
+}
+```
 
 ### Mobile Gestures (Android)
 
@@ -536,24 +551,30 @@ If you know Selenium, all that you saw before this point should look familiar (c
 You make use of these gestures using the JavascriptExecutor class
 #### Long press
 For this you'll need the element id where you are going to press and the duration
+```java
+@Test  
+public void longPressExample() throws MalformedURLException {  
+	driver.findElement(AppiumBy.accessibilityId("Views")).click();  
+	driver.findElement(AppiumBy.xpath(
+		"//android.widget.TextView[@text='Expandable Lists']"
+	)).click();  
+	driver.findElement(AppiumBy.accessibilityId("1. Custom Adapter")).click();  
 
-    @Test  
-    public void longPressExample() throws MalformedURLException {  
-	    driver.findElement(AppiumBy.accessibilityId("Views")).click();  
-	    driver.findElement(AppiumBy.xpath("//android.widget.TextView[@text='Expandable Lists']")).click();  
-	    driver.findElement(AppiumBy.accessibilityId("1. Custom Adapter")).click();  
-	      
-	    WebElement element = driver.findElement(AppiumBy.xpath("//android.widget.TextView[@text='People Names']"));  
-	      
-	    ((JavascriptExecutor)driver).executeScript(  
-		    "mobile: longClickGesture",  
-		    ImmutableMap.of(  
-		      "elementId", ((RemoteWebElement) element).getId(),  
-		      "duration", 2000  
-		    )  
-	    );  
-    }
+	WebElement element = driver.findElement(
+		AppiumBy.xpath(
+			"//android.widget.TextView[@text='People Names']"
+		)
+	);  
 
+	((JavascriptExecutor)driver).executeScript(  
+		"mobile: longClickGesture",  
+		ImmutableMap.of(  
+			"elementId", ((RemoteWebElement) element).getId(),  
+			"duration", 2000  
+		)  
+	);  
+}
+```
 1. You find the element to long Press
 2. call driver.executeScript
     - The script that we are executing is `longClickGesture`
@@ -570,151 +591,169 @@ Since we already have the long press functionality coded, why don't we make a re
 ### My code now looks like this:
 
 #### Utils `src/test/java/org/example/Utils.java`
-
-    public class Utils {  
-	    public AndroidDriver driver;  
-		public void longPress(WebElement element, int duration) {  
-		    ((JavascriptExecutor)driver).executeScript(  
-			    "mobile: longClickGesture",  
-			    ImmutableMap.of(  
-				    "elementId", ((RemoteWebElement) element).getId(),  
-				    "duration", duration  
-			    )  
-		    );  
-	    }  
-    }
-
+```java
+public class Utils {  
+	public AndroidDriver driver;  
+	public void longPress(WebElement element, int duration) {  
+		((JavascriptExecutor)driver).executeScript(  
+			"mobile: longClickGesture",  
+			ImmutableMap.of(  
+				"elementId", ((RemoteWebElement) element).getId(),  
+				"duration", duration  
+			)  
+		);  
+	}  
+}
+```
 #### BaseTest `org/example/BaseTest.java`
 
-    public class BaseTest extends Utils {  
-             private String deviceName = "Nexus 6P API 31";  
-    	     private String appPath = "/Users/camilo.posadaa/Documents/personal/framworks/java/Appium-java/src/test/java/org/resources/ApiDemos-debug.apk";  
-    	     private String nodeModulesAppiumPath = "/Users/camilo.posadaa/.nvm/versions/node/v18.13.0/lib/node_modules/appium/build/lib/main.js";  
-    	     private String appiumIPAddress = "127.0.0.1";  
-    	     int appiumPort = 4723;  
-    	     public AndroidDriver driver;  
-    	     public AppiumDriverLocalService service;  
-    	     @BeforeClass  
-    	     public void configureAppium () throws MalformedURLException {  
-    		            // Start Appium Server programmatically  
-    		     service = new AppiumServiceBuilder()  
-    		                    .withAppiumJS(new File(nodeModulesAppiumPath))  
-    		                    .withIPAddress(appiumIPAddress)  
-    		                    .usingPort(appiumPort)  
-    		                    .build();  
-    		      
-		     service.start();  
-		     // Set the capabilities  
-		     UiAutomator2Options capabilities = new UiAutomator2Options();  
-		     capabilities.setDeviceName(deviceName);  
-		     capabilities.setApp(appPath);  
-		     URL appiumSeverURL = new URL("http://".concat(appiumIPAddress.concat(":").concat(String.valueOf(appiumPort))));  
-		     // Start the driver  
-		     driver = new AndroidDriver(appiumSeverURL, capabilities);  
-		      
-	     }  
-	     
-	     @AfterClass  
-	     public void tearDown () {  
-		     // Clean  
-		     driver.quit();  
-		     service.close();  
-	     }  
-	      
-    }
+```java
+public class BaseTest extends Utils {  
+	private String deviceName = "Nexus 6P API 31";  
+	private String appPath = "/Users/camilo.posadaa/Documents/personal/framworks/java/Appium-java/src/test/java/org/resources/ApiDemos-debug.apk";  
+	private String nodeModulesAppiumPath = "/Users/camilo.posadaa/.nvm/versions/node/v18.13.0/lib/node_modules/appium/build/lib/main.js";  
+	private String appiumIPAddress = "127.0.0.1";  
+	int appiumPort = 4723;  
+	public AndroidDriver driver;  
+	public AppiumDriverLocalService service;  
+	@BeforeClass  
+	public void configureAppium () throws MalformedURLException {  
+		// Start Appium Server programmatically  
+		service = new AppiumServiceBuilder()  
+		.withAppiumJS(new File(nodeModulesAppiumPath))  
+		.withIPAddress(appiumIPAddress)  
+		.usingPort(appiumPort)  
+		.build();  
+
+		service.start();  
+		// Set the capabilities  
+		UiAutomator2Options capabilities = new UiAutomator2Options();  
+		capabilities.setDeviceName(deviceName);  
+		capabilities.setApp(appPath);  
+		URL appiumSeverURL = new URL("http://".concat(appiumIPAddress.concat(":").concat(String.valueOf(appiumPort))));  
+		// Start the driver  
+		driver = new AndroidDriver(appiumSeverURL, capabilities);  
+
+	}  
+
+	@AfterClass  
+	public void tearDown () {  
+		// Clean  
+		driver.quit();  
+		service.close();  
+	}  
+
+}
+```
 
 #### Tests File `org/example/appiumExample.java`
-
-    public class appiumExample extends BaseTest{  
-	    @Test  
-	    public void exampleTest() throws MalformedURLException {  
-		    WebElement preferenceElement = driver.findElement(AppiumBy.accessibilityId("Preference"));  
-			preferenceElement.click();  
-		    driver.findElement(AppiumBy.xpath("//android.widget.TextView[@content-desc='3. Preference dependencies']")).click();  
-		    driver.findElement(AppiumBy.id("android:id/checkbox")).click();  
-		    driver.findElement(AppiumBy.xpath("(//android.widget.RelativeLayout)[2]")).click();  
-		      
-		    // Assert  
-		    String alertText = driver.findElement(AppiumBy.id("android:id/alertTitle")).getText();  
-		    Assert.assertEquals(alertText, "WiFi settings");  
-			driver.findElement(AppiumBy.id("android:id/edit")).sendKeys("Test");  
-			driver.findElements(AppiumBy.className("android.widget.Button")).get(1).click();  
-	    }  
-	      
-	    @Test  
-	    public void longPressExample() throws MalformedURLException {  
-		    driver.findElement(AppiumBy.accessibilityId("Views")).click();  
-		    driver.findElement(AppiumBy.xpath("//android.widget.TextView[@text='Expandable Lists']")).click();  
-		    driver.findElement(AppiumBy.accessibilityId("1. Custom Adapter")).click();  
-		      
-		    WebElement element = driver.findElement(AppiumBy.xpath("//android.widget.TextView[@text='People Names']"));  
-		    longPress(element, 2000);  
-		    // Assert that the menu appears  
-		    Assert.assertTrue(driver.findElement(AppiumBy.id("android:id/title")).isDisplayed());  
-		    String menuText = driver.findElement(AppiumBy.id("android:id/title")).getText();  
-		    Assert.assertEquals(menuText, "Sample menu");  
-	    }  
-    }
-
+```java
+public class appiumExample extends BaseTest{  
+	@Test  
+	public void exampleTest() throws MalformedURLException {  
+		WebElement preferenceElement = driver.findElement(AppiumBy.accessibilityId("Preference"));  
+		preferenceElement.click();  
+		driver.findElement(AppiumBy.xpath("//android.widget.TextView[@content-desc='3. Preference dependencies']")).click();  
+		driver.findElement(AppiumBy.id("android:id/checkbox")).click();  
+		driver.findElement(AppiumBy.xpath("(//android.widget.RelativeLayout)[2]")).click();  
+		  
+		// Assert  
+		String alertText = driver.findElement(AppiumBy.id(
+                    "android:id/alertTitle"))
+                .getText();  
+		Assert.assertEquals(alertText, "WiFi settings");  
+		driver.findElement(AppiumBy.id("android:id/edit")).sendKeys("Test");  
+		driver.findElements(AppiumBy.className("android.widget.Button")).get(1).click();  
+	}  
+	 
+	@Test  
+	public void longPressExample() throws MalformedURLException {  
+		driver.findElement(AppiumBy.accessibilityId("Views")).click();  
+		driver.findElement(AppiumBy.xpath("//android.widget.TextView[@text='Expandable Lists']")).click();  
+		driver.findElement(AppiumBy.accessibilityId("1. Custom Adapter")).click();  
+		  
+		WebElement element = driver.findElement(AppiumBy.xpath("//android.widget.TextView[@text='People Names']"));  
+		longPress(element, 2000);  
+		// Assert that the menu appears  
+		Assert.assertTrue(driver.findElement(AppiumBy.id("android:id/title")).isDisplayed());  
+		String menuText = driver.findElement(AppiumBy.id("android:id/title")).getText();  
+		Assert.assertEquals(menuText, "Sample menu");  
+	}  
+}
+```
 ## Continue with gestures
 
 #### Scrolling
 For this is a good idea to use the UIAutomator and use the google engine script that they provide:
 > See: https://developer.android.com/reference/androidx/test/uiautomator/UiScrollable
-
-    driver.findElement(AppiumBy.androidUIAutomator(  
-	    "new UiScrollable(new UiSelector().scrollable(true)).scrollTextIntoView(\"WebView\")")  
-    );
+```java
+driver.findElement(
+	AppiumBy.androidUIAutomator(  
+	   "new UiScrollable(new UiSelector().scrollable(true)).scrollTextIntoView(\"WebView\")"
+   )  
+);
+```
 
 Or use the example scroll provided here: https://github.com/appium/appium-uiautomator2-driver/blob/master/docs/android-mobile-gestures.md
-
-    // Java
-    boolean canScrollMore = (Boolean) ((JavascriptExecutor) driver).executeScript("mobile: flingGesture", ImmutableMap.of(
-        "elementId", ((RemoteWebElement) element).getId(),
-        "direction", "down",
-        "speed", 500
-    ));
-
+```java
+// Java
+boolean canScrollMore = (Boolean) ((JavascriptExecutor) driver)
+	.executeScript(
+		"mobile: flingGesture",
+		ImmutableMap.of(
+		    "elementId", ((RemoteWebElement) element).getId(),
+		    "direction", "down",
+		    "speed", 500
+		)
+	);
+```
 For example, you can make a utility function to scroll to the end of the screen like this:
-
-    public void scrollToEnd() {  
-          
-        boolean canScrollMore;  
-	    do {  
-            canScrollMore = (Boolean) ((JavascriptExecutor) driver).executeScript(
-	           "mobile: scrollGesture", 
-	            ImmutableMap.of(  
-                  "left", 100, "top", 100, "width", 200, "height", 200,  
-			      "direction", "down",  
-			      "percent", 3.0  
-		        )
-		    );  
-        } while (canScrollMore);  
-    }
-
+```java
+public void scrollToEnd() {  
+      
+	boolean canScrollMore;  
+	do {  
+       canScrollMore = (Boolean) ((JavascriptExecutor) driver).executeScript(
+         "mobile: scrollGesture", 
+         ImmutableMap.of(  
+            "left", 100, "top", 100, "width", 200, "height", 200,  
+		    "direction", "down",  
+		    "percent", 3.0  
+	     )
+	   );  
+    } while (canScrollMore);  
+}
+```
 #### Swipe Functionality
 
 We use the `mobile: swipeGesture` script
+```java
+// Java
+@Test
+public void swipeDemoTest() throws MalformedURLException {
+   driver.findElement(AppiumBy.accessibilityId("Views")).click();
+   driver.findElement(AppiumBy.accessibilityId("Gallery")).click();
+   driver.findElement(AppiumBy.accessibilityId("1. Photos")).click();
+   Assert.assertEquals(driver.findElement(
+	   AppiumBy.xpath("(//android.widget.ImageView)[1]")
+	).getAttribute("focusable"), "true");
 
-    @Test
-    public void swipeDemoTest() throws MalformedURLException {
-        driver.findElement(AppiumBy.accessibilityId("Views")).click();
-        driver.findElement(AppiumBy.accessibilityId("Gallery")).click();
-        driver.findElement(AppiumBy.accessibilityId("1. Photos")).click();
-        Assert.assertEquals(driver.findElement(AppiumBy.xpath("(//android.widget.ImageView)[1]")).getAttribute("focusable"), "true");
+   // Swipe
+   WebElement elementToSwipe = driver.findElement(
+	   AppiumBy.xpath("(//android.widget.ImageView)[1]")
+   );
+   ((JavascriptExecutor) driver).executeScript(
+   "mobile: swipeGesture",
+       ImmutableMap.of(
+           "elementId", ((RemoteWebElement) elementToSwipe).getId(),
+           "direction", "left",
+           "percent", 0.75
+       )
+   );
+   Assert.assertEquals(driver.findElement(
+	   AppiumBy.xpath("(//android.widget.ImageView)[1]")
+   ).getAttribute("focusable"), "false");
+}
 
-        // Swipe
-        WebElement elementToSwipe = driver.findElement(AppiumBy.xpath("(//android.widget.ImageView)[1]"));
-        ((JavascriptExecutor) driver).executeScript(
-	       "mobile: swipeGesture",
-            ImmutableMap.of(
-                "elementId", ((RemoteWebElement) elementToSwipe).getId(),
-                "direction", "left",
-                "percent", 0.75
-            )
-        );
-
-
-        Assert.assertEquals(driver.findElement(AppiumBy.xpath("(//android.widget.ImageView)[1]")).getAttribute("focusable"), "false");
-
-    }
+```
+    
