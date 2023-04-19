@@ -850,3 +850,75 @@ String packageName = "io.appium.android.apis";
 Activity activity = new Activity(packageName, initialActivity);
 driver.startActivity(activity);
 ```
+
+## Refactor time
+Now that we know how to start a particular activity, I'm doing a little refactor to the code adding `@BeforeMethod` hook, so the tests always starts in the initial activity. This way we can run all the tests
+
+```java
+    @BeforeMethod  // Excecutes before each @Test
+    public void setup() throws InterruptedException {
+        String initialActivity = ".ApiDemos";
+        String packageName = "io.appium.android.apis";
+        Activity activity = new Activity(packageName, initialActivity);
+        driver.startActivity(activity);
+        Thread.sleep(1000);
+    }
+```
+
+## Proposed exercises
+It's time to put the knowledge into practice, use the app stored in: `src/test/java/org/resources/General-Store.apk`
+
+### Proposed test Scenarios
+1. Fill the form details and verify Toad error message is displayed when the user enters a wrong input
+2. Validate scrolling functionality by scrolling to an specific product
+3. Validate the items selected are displayed in the checkout page
+
+### Example test case ( Remember to change the apk path in the Basetest Class )
+1. Open the app General-Store
+2. Select for Country "Colombia"
+3. Enter your Name in the name input
+4. Select your gender using the radio buttons
+5. Click lets's shop
+6. Validate that you are in the Products Screen
+
+```java
+public class GeneralStoreAPKExampleTests extends BaseTest {
+    @Test
+    public void fillFormExample() {
+        // Type the name
+        driver.findElement(AppiumBy.id("com.androidsample.generalstore:id/nameField")).sendKeys("Camilo");
+        // I need to hide the keyboard to be able to interact with the radio buttons
+        driver.hideKeyboard();
+        // Select gender in the radio button
+        driver.findElement(AppiumBy.xpath("//android.widget.RadioButton[@text='Male']")).click();
+        // Open the select for the country
+        driver.findElement(AppiumBy.id("android:id/text1")).click();
+
+        // Select Colombia
+        String country = "Colombia";
+        // This is a scrollable element, I can use UIAutomator to do the scroll
+        driver.findElement(
+            AppiumBy.androidUIAutomator(
+                String.format("new UiScrollable(new UiSelector().scrollable(true)).scrollTextIntoView(\"%s\")", country)
+            )
+        );
+        // Click Colombia option
+        driver.findElement(
+            AppiumBy.xpath(
+                String.format("//android.widget.TextView[@text='%s']", country)
+            )
+        ).click();
+
+        // Click letsShop button
+        driver.findElement(AppiumBy.id("com.androidsample.generalstore:id/btnLetsShop")).click();
+
+
+        // Validate you are in the Products screen
+        WebElement productsBar = driver.findElement(
+                AppiumBy.xpath("//android.widget.TextView[@text='Products']")
+        );
+
+        Assert.assertEquals(productsBar.isDisplayed(), true);
+    }
+}
+```

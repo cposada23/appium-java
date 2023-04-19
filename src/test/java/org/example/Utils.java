@@ -1,6 +1,7 @@
 package org.example;
 
 import com.google.common.collect.ImmutableMap;
+import io.appium.java_client.AppiumBy;
 import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
@@ -41,6 +42,14 @@ public class Utils {
             ));
         } while (canScrollMore);
 
+    }
+
+    public void uiAutomatorScrollTextIntoView(String expectedText) {
+        driver.findElement(
+            AppiumBy.androidUIAutomator(
+                String.format("new UiScrollable(new UiSelector().scrollable(true)).scrollTextIntoView(\"%s\")", expectedText)
+            )
+        );
     }
 
     public void swipe(WebElement element, SwipeDirections direction) {
