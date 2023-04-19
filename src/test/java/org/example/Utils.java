@@ -54,4 +54,15 @@ public class Utils {
         );
 
     }
+
+    public void dragAndDrop(WebElement element, int xCoordinate, int yCoordinate) {
+        ((JavascriptExecutor) driver).executeScript(
+                "mobile: dragGesture",
+                ImmutableMap.of(
+                        "elementId", ((RemoteWebElement) element).getId(),
+                        "endX", xCoordinate,
+                        "endY", yCoordinate
+                )
+        );
+    }
 }

@@ -1,7 +1,12 @@
 package org.example;
 
+import com.beust.ah.A;
 import com.google.common.collect.ImmutableMap;
 import io.appium.java_client.AppiumBy;
+import io.appium.java_client.android.Activity;
+import io.appium.java_client.android.nativekey.AndroidKey;
+import io.appium.java_client.android.nativekey.KeyEvent;
+import org.openqa.selenium.DeviceRotation;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebElement;
@@ -13,7 +18,7 @@ import java.net.MalformedURLException;
 
 public class appiumExample extends BaseTest{
     @Test
-    public void exampleTest() throws MalformedURLException {
+    public void exampleTest() {
         WebElement preferenceElement = driver.findElement(AppiumBy.accessibilityId("Preference"));
         preferenceElement.click();
         driver.findElement(AppiumBy.xpath("//android.widget.TextView[@content-desc='3. Preference dependencies']"))
@@ -31,7 +36,7 @@ public class appiumExample extends BaseTest{
     }
 
     @Test
-    public void longPressExample() throws MalformedURLException {
+    public void longPressExample() {
         driver.findElement(AppiumBy.accessibilityId("Views")).click();
         driver.findElement(AppiumBy.xpath("//android.widget.TextView[@text='Expandable Lists']")).click();
         driver.findElement(AppiumBy.accessibilityId("1. Custom Adapter")).click();
@@ -45,7 +50,7 @@ public class appiumExample extends BaseTest{
     }
 
     @Test
-    public void scrollDemoTest() throws MalformedURLException {
+    public void scrollDemoTest() {
         driver.findElement(AppiumBy.accessibilityId("Views")).click();
         driver.findElement(AppiumBy.androidUIAutomator(
         "new UiScrollable(new UiSelector().scrollable(true)).scrollTextIntoView(\"WebView\")")
@@ -53,14 +58,14 @@ public class appiumExample extends BaseTest{
     }
 
     @Test
-    public void scrollToEndDemoTest() throws MalformedURLException {
+    public void scrollToEndDemoTest() {
         driver.findElement(AppiumBy.accessibilityId("Views")).click();
         scrollToEnd();
     }
 
 
     @Test
-    public void swipeDemoTest() throws MalformedURLException {
+    public void swipeDemoTest() {
         driver.findElement(AppiumBy.accessibilityId("Views")).click();
         driver.findElement(AppiumBy.accessibilityId("Gallery")).click();
         driver.findElement(AppiumBy.accessibilityId("1. Photos")).click();
@@ -76,23 +81,53 @@ public class appiumExample extends BaseTest{
     }
 
     @Test
-    public void dragAndDropDemo() throws MalformedURLException {
+    public void dragAndDropDemo() {
         driver.findElement(AppiumBy.accessibilityId("Views")).click();
         driver.findElement(AppiumBy.accessibilityId("Drag and Drop")).click();
 
         WebElement source = driver.findElement(AppiumBy.id("io.appium.android.apis:id/drag_dot_1"));
 
-        ((JavascriptExecutor) driver).executeScript(
-                "mobile: dragGesture",
-                ImmutableMap.of(
-                    "elementId", ((RemoteWebElement) source).getId(),
-                    "endX", 649,
-                    "endY", 677
-                )
-        );
+        dragAndDrop(source, 649, 677);
 
         String result = driver.findElement(AppiumBy.id("io.appium.android.apis:id/drag_result_text")).getText();
         Assert.assertEquals(result, "Dropped!");
 
+    }
+
+    @Test
+    public void deviceOrientation(){
+        WebElement preferenceElement = driver.findElement(AppiumBy.accessibilityId("Preference"));
+        preferenceElement.click();
+        driver.findElement(AppiumBy.xpath("//android.widget.TextView[@content-desc='3. Preference dependencies']"))
+                .click();
+        driver.findElement(AppiumBy.id("android:id/checkbox")).click();
+
+        DeviceRotation landScape = new DeviceRotation(0,0,90);
+        driver.rotate(landScape);
+
+        driver.findElement(AppiumBy.xpath("(//android.widget.RelativeLayout)[2]")).click();
+
+
+        // Assert
+        String alertText = driver.findElement(AppiumBy.id("android:id/alertTitle")).getText();
+        Assert.assertEquals(alertText, "WiFi settings");
+
+        driver.setClipboardText("Test");
+        driver.findElement(AppiumBy.id("android:id/edit")).sendKeys(driver.getClipboardText());
+        driver.findElements(AppiumBy.className("android.widget.Button")).get(1).click();
+
+        driver.pressKey(new KeyEvent(AndroidKey.HOME));
+
+    }
+
+
+    @Test
+    public void startActivityExample () throws InterruptedException {
+        String initialActivity = ".ApiDemos";
+        String toActivity = ".preference.AdvancedPreferences";
+        String packageName = "io.appium.android.apis";
+        Activity activity = new Activity(packageName, toActivity);
+        driver.startActivity(activity);
+        Thread.sleep(5000);
     }
 }

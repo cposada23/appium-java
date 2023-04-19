@@ -91,6 +91,10 @@ check the drivers installation with ***appium driver list***
 The inspector is a tool to get the selector of the elements to be able to interact with them, something similar on using the Chrome or Firefox inspection tool to get the web Elements identifiers
 > Download it from here: https://github.com/appium/appium-inspector/releases
 
+If you get an error opening Appium Inspector, give it the permissions like this:
+![Screenshot 2023-04-19 at 10 46 10 AM](https://user-images.githubusercontent.com/7946622/233130068-fb920634-16e2-4fdf-9161-62011f69d5de.png)
+
+
 >1.  **Remote Port:** Update port to  `4724`  and run Appium server on the same port as well by doing  `appium -p 4724`
 >2.  **Remote Path:** Set the path to  `/wd/hub/`  instead of  `/` if using the Appium server from the Appium desktop or `/`  instead of  `/wd/hub/` if running Appium server from the terminal.
 
@@ -757,6 +761,8 @@ public void swipeDemoTest() throws MalformedURLException {
 
 #### Drag and Drop
 
+> We use the `mobile: dragGesture` script
+
 For this you'll need the id of the element that you want to drag and drop and the coordinates of where you want to drag and drop it. To obtain the coordinates we use the Appium inspector, for this go to the view where you are going to perform the action and you have at the top of the app view 3 buttons, one says Tab By Coordinates, click it and then you can put the cursor in the area that you want to drop and it will say the coordinates.
 
 ![Screenshot 2023-04-19 at 9 28 57 AM](https://user-images.githubusercontent.com/7946622/233107658-a83ee573-a4b8-40be-8470-6794a0d24302.png)
@@ -770,7 +776,7 @@ For this you'll need the id of the element that you want to drag and drop and th
 
         WebElement source = driver.findElement(
 	        AppiumBy.id("io.appium.android.apis:id/drag_dot_1")
-        );
+	    );
 
         ((JavascriptExecutor) driver).executeScript(
                 "mobile: dragGesture",
@@ -780,4 +786,67 @@ For this you'll need the id of the element that you want to drag and drop and th
                     "endY", 677
                 )
         );
+
+        String result = driver.findElement(
+	        AppiumBy.id("io.appium.android.apis:id/drag_result_text")
+	    ).getText();
+        Assert.assertEquals(result, "Dropped!");
+
+    }
+```
+
+
+#### Device Orientation
+For this you use the class `DeviceRotation` and use it to rotate the device
+
+```java
+DeviceRotation landScape = new DeviceRotation(0,0,90);  
+driver.rotate(landScape);
+``` 
+
+#### Copy from clipboard and paste from clipboard
+
+Use setClipboardText and getClipboardText methods
+
+```java
+driver.setClipboardText("Test");  
+driver.findElement(
+	AppiumBy.id("android:id/edit")
+).sendKeys(driver.getClipboardText());
+```
+
+#### Keyboard events (press enter, back button, home button....)
+You use the AndroidKey and KeyEvent classes for this: see https://appium.github.io/java-client/io/appium/java_client/android/nativekey/AndroidKey.html
+
+```java
+driver.pressKey(new KeyEvent(AndroidKey.HOME));
+```
+
+
+#### Open App using `app package` and `app activity name`
+
+-   appPackage: technical name of the app, provided by the developers (Top level package under which the app code resides) . Ex: ‘com.google.android.youtube’
+-   appActivity: Certain screen or functionality of the application. EX: MainActivity, AlertDialog
+
+_**Why take this in consideration ?**_
+
+1.  Access a Screen directly
+2.  Save time in the automation script by not going through multiple pages, this decrease the change of having flaky tests
+
+#### How to go directly to a particular activity:
+
+1.  You have to know the activity name, for this:
+    -   In the Appium inspector, go to the page that you want ( In the app that we are woking in this repository, lets say we wan to start our test in the App / Alert Dialogs screen )
+    -   Once you are in the correct page, in Appium inspector in the middle upper section, click commands. Then click where it says “_**Select Action Group**_” and select  _**Device**_. In the new select that gets added after you click Device, click it and select  _**Android Activity**_. Once you clicked it, a popup will appear with the current activity name… In our case is "  _**.app.AlertDialogSamples**_  "
+    -   I need also the package name combined with the activity name to be able to access that screen. To get the package name, close the popup that was opened in the previous step, and click in the button that says  _**current package**_. In this example the package is: "  _**io.appium.android.apis**_  "
+
+![Screenshot 2023-04-19 at 11 28 07 AM](https://user-images.githubusercontent.com/7946622/233140188-baf7c95a-97f5-43e6-8270-8bf6bfdbb9b6.png)
+
+In java Appium exposes a class called `Activity`
+
+```java
+String initialActivity = ".ApiDemos";  
+String packageName = "io.appium.android.apis";  
+Activity activity = new Activity(packageName, initialActivity);
+driver.startActivity(activity);
 ```
