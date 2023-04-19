@@ -229,7 +229,7 @@ Implicit Wait directs the  driver to wait for a certain measure of time before t
 
 Once the command is in place, Implicit Wait stays in place for the entire duration for which the browser is open. It’s default setting is 0, and the specific wait time needs to be set by the following protocol.
 ```java
-driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+	driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
 ```
 #### Explicit Waits
 Explicit wait tells the driver to wait until a certain condition occurs before throwing an exception. The types of explicit waits are the followings:
@@ -405,8 +405,8 @@ public void exampleTest() throws MalformedURLException {
 
 > Suggestion: Create a new virtual device for manual testing with a different android version than the one that you use in the automation, that's because WebDriverIO looks for the Android version and sometimes it will use this new emulator instead of the other one
 
-2. In the Appium inspector make sure that in the ***Remote Path*** you have ***/*** and in the port the port that you set up in the previous step for the Appium server In my case: ***4724***
-3. In the Appium Inspector you need to add the capabilities to connect to the emulator:
+3. In the Appium inspector make sure that in the ***Remote Path*** you have ***/*** and in the port the port that you set up in the previous step for the Appium server In my case: ***4724***
+4. In the Appium Inspector you need to add the capabilities to connect to the emulator:
 ```json
     {
 	     "platformName": "Android",
@@ -416,7 +416,7 @@ public void exampleTest() throws MalformedURLException {
 	     "appium:app": "<Replace with the full path to the APK that you are using >"
     }
 ```
-4. Click Start Session. you should see in the Appium inspector the application that is running in the emulator. There you can inspect the elements to get the proper id to interact with them in the automation.
+5. Click Start Session. you should see in the Appium inspector the application that is running in the emulator. There you can inspect the elements to get the proper id to interact with them in the automation.
 
 
 ## Time to refactor (Introducing some TestNG Hooks and a BaseTest Class to create the driver there
@@ -658,9 +658,7 @@ public class appiumExample extends BaseTest{
 		driver.findElement(AppiumBy.xpath("(//android.widget.RelativeLayout)[2]")).click();  
 		  
 		// Assert  
-		String alertText = driver.findElement(AppiumBy.id(
-                    "android:id/alertTitle"))
-                .getText();  
+		String alertText = driver.findElement(AppiumBy.id("android:id/alertTitle")).getText();  
 		Assert.assertEquals(alertText, "WiFi settings");  
 		driver.findElement(AppiumBy.id("android:id/edit")).sendKeys("Test");  
 		driver.findElements(AppiumBy.className("android.widget.Button")).get(1).click();  
@@ -756,4 +754,30 @@ public void swipeDemoTest() throws MalformedURLException {
 }
 
 ```
-    
+
+#### Drag and Drop
+
+For this you'll need the id of the element that you want to drag and drop and the coordinates of where you want to drag and drop it. To obtain the coordinates we use the Appium inspector, for this go to the view where you are going to perform the action and you have at the top of the app view 3 buttons, one says Tab By Coordinates, click it and then you can put the cursor in the area that you want to drop and it will say the coordinates.
+
+![Screenshot 2023-04-19 at 9 28 57 AM](https://user-images.githubusercontent.com/7946622/233107658-a83ee573-a4b8-40be-8470-6794a0d24302.png)
+
+
+```java
+    @Test
+    public void dragAndDropDemo() throws MalformedURLException {
+        driver.findElement(AppiumBy.accessibilityId("Views")).click();
+        driver.findElement(AppiumBy.accessibilityId("Drag and Drop")).click();
+
+        WebElement source = driver.findElement(
+	        AppiumBy.id("io.appium.android.apis:id/drag_dot_1")
+        );
+
+        ((JavascriptExecutor) driver).executeScript(
+                "mobile: dragGesture",
+                ImmutableMap.of(
+                    "elementId", ((RemoteWebElement) source).getId(),
+                    "endX", 649,
+                    "endY", 677
+                )
+        );
+```
