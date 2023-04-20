@@ -922,3 +922,33 @@ public class GeneralStoreAPKExampleTests extends BaseTest {
     }
 }
 ```
+
+> The rest of the examples are in the repository: `src/test/java/org/example/GeneralStoreAPKExampleTests.java`
+
+
+#### Handling web views
+
+A webView is basically a view that displays web pages or web content ( when you click a link for example ). It can either be a webObject or open a webBrowser
+
+
+#### Accessing the Contexts in Appium Inspector
+> IMPORTANT: run Appium in the terminal like this: `appium -p 4724 --allow-cors --allow-insecure chromedriver_autodownload`
+-  Open the app in the Appium inspector, then in the top menu go to Commands and in the dropdown select Context
+- Then for the subGroup select Context again
+- Click `Get Current Context`  It will tell you the context that you are in
+- The `Get Context List` Will give you the list of contexts that are available
+-
+![Screenshot 2023-04-20 at 3 40 39 PM](https://user-images.githubusercontent.com/7946622/233483079-99719d62-38fa-43de-bea6-c5e36e537a28.png)
+
+To programatically know the list of handles you use
+```java
+Set<String> handles =  driver.getContextHandles();
+```
+
+To switch to a Handle
+```java
+driver.context("handleName")
+```
+After you switch to the webView context, you can continue using normal selenium to automate it.
+
+
