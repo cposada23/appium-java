@@ -18,7 +18,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class GeneralStoreAPKExampleTests extends BaseTest {
+public class GeneralStoreAPKExampleTests extends AndroidBaseTest {
     @Test
     public void fillFormExample() {
         // Type the name

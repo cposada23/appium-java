@@ -7,7 +7,7 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebElement;
 
-public class Utils {
+public class AndroidUtils {
 
     public enum SwipeDirections {
         LEFT("left"), RIGHT("right");

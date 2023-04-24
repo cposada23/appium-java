@@ -10,7 +10,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class ApiDemosAPKExampleTests extends BaseTest{
+public class ApiDemosAPKExampleTests extends AndroidBaseTest {
 
     @BeforeMethod
     public void setup() throws InterruptedException {

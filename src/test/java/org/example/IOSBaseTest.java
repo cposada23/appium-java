@@ -2,6 +2,8 @@ package org.example;
 
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.options.UiAutomator2Options;
+import io.appium.java_client.ios.IOSDriver;
+import io.appium.java_client.ios.options.XCUITestOptions;
 import io.appium.java_client.service.local.AppiumDriverLocalService;
 import io.appium.java_client.service.local.AppiumServiceBuilder;
 import org.testng.annotations.AfterClass;
@@ -12,10 +14,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Duration;
 
-public class BaseTest extends Utils {
-    private String deviceName = "Nexus 6P API 31";
-    // private String appPath = "/Users/camilo.posadaa/Documents/personal/framworks/java/Appium-java/src/test/java/org/resources/ApiDemos-debug.apk";
-    private String appPath = "/Users/camilo.posadaa/Documents/personal/framworks/java/Appium-java/src/test/java/org/resources/General-Store.apk";
+public class IOSBaseTest extends IOSUtils {
+
+
+    private String deviceName = "iPhone11ios14";
+    private String appPath = "/Users/camilo.posadaa/Documents/personal/framworks/java/Appium-java/src/test/java/org/resources/UIKitCatalog.app";
     private String nodeModulesAppiumPath = "/Users/camilo.posadaa/.nvm/versions/node/v18.13.0/lib/node_modules/appium/build/lib/main.js";
     private String appiumIPAddress = "127.0.0.1";
     int appiumPort = 4723;
@@ -31,12 +34,17 @@ public class BaseTest extends Utils {
 
         service.start();
         // Set the capabilities
-        UiAutomator2Options capabilities = new UiAutomator2Options();
+        XCUITestOptions capabilities = new XCUITestOptions();
         capabilities.setDeviceName(deviceName);
         capabilities.setApp(appPath);
+        capabilities.setPlatformVersion("14.5");
+        // In IOS Appium will install the WebDriver Agent
+        // So we will need to wait until it is installed an available
+        capabilities.setWdaLaunchTimeout(Duration.ofSeconds(60));
+
         URL appiumSeverURL = new URL("http://".concat(appiumIPAddress.concat(":").concat(String.valueOf(appiumPort))));
         // Start the driver
-        driver = new AndroidDriver(appiumSeverURL, capabilities);
+        driver = new IOSDriver(appiumSeverURL, capabilities);
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
     }
     @AfterClass
@@ -45,5 +53,4 @@ public class BaseTest extends Utils {
         driver.quit();
         service.close();
     }
-
 }
