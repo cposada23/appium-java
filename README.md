@@ -1061,3 +1061,163 @@ public class IOSBaseTest extends IOSUtils {
 }
 ```
 
+Run a basic test and see if the simulator gets opened and the app installed
+
+```java
+    @Test
+    public void basicTest() {
+        driver.findElement(AppiumBy.accessibilityId("Alert Views")).click();
+    }
+```
+
+#### Use of class chain
+
+> Class chain is similar to XPath but in iOS, locating and element with class Chain works faster than XPath, so is recommended to use class chain.
+
+Use `AppiumBy.iOSClassChain`
+> More info about class chain here https://github.com/facebookarchive/WebDriverAgent/wiki/Class-Chain-Queries-Construction-Rules
+
+ex: Find element with text = Text Entry:
+
+```java
+driver.findElement(
+	AppiumBy.iOSClassChain("**/XCUIElementTypeStaticText[`label == 'Text Entry'`]"
+)).click();
+```
+
+#### Use of predicate String
+
+Use: `AppiumBy.iOSNsPredicateString`
+
+> More info here: https://github.com/facebookarchive/WebDriverAgent/wiki/Predicate-Queries-Construction-Rules
+
+
+Ex: Find element with value = 'Confirm / Cancel'
+
+```java
+@Test  
+public void predicateStringExample() {  
+    driver.findElement(AppiumBy.accessibilityId("Alert Views")).click();  
+	driver.findElement(
+		AppiumBy.iOSNsPredicateString(
+			"type == 'XCUIElementTypeStaticText' AND value == 'Confirm / Cancel'"
+		)
+	).click();  
+}
+```
+
+EX: Find element with the value beginning with 'Confirm'
+
+```java
+@Test
+public void predicateStringExample() {
+    driver.findElement(AppiumBy.accessibilityId("Alert Views")).click();
+    // Example with value begins with
+    driver.findElement(
+	    AppiumBy.iOSNsPredicateString(
+		  "type == 'XCUIElementTypeStaticText' AND value BEGINSWITH[c] 'Confirm'"
+		)
+	).click();
+
+}
+```
+
+EX: Find element with the value ending with 'Cancel'
+
+```java
+@Test
+public void predicateStringExample() {
+    driver.findElement(AppiumBy.accessibilityId("Alert Views")).click();
+    // Example with value begins with
+    driver.findElement(
+	    AppiumBy.iOSNsPredicateString(
+		  "type == 'XCUIElementTypeStaticText' AND value ENDSWITH[c] 'Confirm'"
+		)
+	).click();
+
+}
+```
+
+### Gestures in iOS
+
+#### Long Press
+Use `"mobile: touchAndHold"` script and specify the element like this:
+
+```java
+	   @Test
+    public void longPressExample() {
+        driver.findElement(AppiumBy.accessibilityId("Steppers")).click();
+        WebElement element = driver.findElement(
+	        AppiumBy.iOSClassChain(
+		        "**/XCUIElementTypeButton[`label == 'Increment'`][3]"
+		    )
+	     );
+
+        ((JavascriptExecutor)driver).executeScript(
+                "mobile: touchAndHold",
+                ImmutableMap.of(
+                        "elementId", ((RemoteWebElement) element).getId(),
+                        "duration", 5
+                )
+        );
+    }
+```
+
+#### Scrolling
+
+Use `mobile: scroll` script, specify the element you want to scroll to and the direction:
+
+```java
+    @Test
+    public void scrollExample() {
+        WebElement element = driver.findElement(
+	        AppiumBy.accessibilityId("Web View")
+	    );
+
+        ((JavascriptExecutor)driver).executeScript(
+                "mobile: scroll",
+                ImmutableMap.of(
+                        "elementId", ((RemoteWebElement) element).getId(),
+                        "direction", "down"
+                )
+        );
+
+        element.click();
+    }
+```
+
+#### Automate Picker components
+Use `sendKeys` with the value you want to select
+
+#### Sliding
+Use `sendKeys` and pass the percentage that you want  to select with the slider. The value that you send in the sendKeys method, should be a value between 0 and 1.
+
+Ex: slide to 100%
+
+```java
+WebElement slider = driver.findElement(AppiumBy.id("id"));
+slider.sendKeys("1%");
+```
+
+#### Swipe
+Use: `mobile: swipe` script, specify the element (Optional) and the direction to do the swipe (left or right)
+> If you don't specify the element on where to apply the swipe, Appium will do the swipe in the center of the screen.
+
+```java
+WebElement element = driver.findElement(AppiumBy.accessibilityId("accessibility id of element"));  
+  
+((JavascriptExecutor)driver).executeScript(  
+        "mobile: swipe",  
+  ImmutableMap.of(  
+      "elementId", ((RemoteWebElement) element).getId(),  
+	  "direction", "left"  
+  )  
+);  
+  
+element.click();
+```
+
+
+# Framework
+
+> The code and instructions for the framework are in this repository: https://github.com/cposada23/appium-java-framework 
